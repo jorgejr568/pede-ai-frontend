@@ -1,5 +1,17 @@
-import { Product } from "@/API";
-import { createContext, useCallback, useContext, useState } from "react";
+import { Product, TProduct } from "@/API";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+type TCart = {
+  product: TProduct;
+  quantity: number;
+};
 
 class Cart {
   constructor(
@@ -20,6 +32,17 @@ class Cart {
 
   set quantity(value: number) {
     this._quantity = value;
+  }
+
+  toJSON(): TCart {
+    return {
+      product: this.product.toJSON(),
+      quantity: this.quantity,
+    };
+  }
+
+  static fromJSON(data: TCart): Cart {
+    return new Cart(Product.fromJSON(data.product), data.quantity);
   }
 }
 
@@ -49,6 +72,7 @@ export const CartContext = createContext<CartContextType>({
 });
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+  const isMounted = useRef(false);
   const [items, setItems] = useState<Cart[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -108,6 +132,27 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const clearCart = useCallback(() => {
     setItems([]);
   }, []);
+
+  useEffect(() => {
+    if (isMounted.current) {
+      return;
+    }
+
+    const cart = localStorage.getItem("cart");
+    if (cart) {
+      setItems(JSON.parse(cart).map(Cart.fromJSON));
+    }
+
+    isMounted.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted.current) {
+      return;
+    }
+
+    localStorage.setItem("cart", JSON.stringify(items));
+  }, [items]);
 
   return (
     <CartContext.Provider

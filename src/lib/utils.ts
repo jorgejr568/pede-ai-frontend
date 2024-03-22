@@ -11,3 +11,9 @@ export function moneyBrl(value: number) {
     currency: "BRL",
   }).format(value);
 }
+
+export const ENV = Object.freeze({
+  APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "Pede Aí",
+  STRAPI_URL: process.env.STRAPI_URL,
+  STRAPI_TOKEN: process.env.STRAPI_TOKEN,
+});

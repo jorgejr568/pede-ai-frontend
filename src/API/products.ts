@@ -1,3 +1,5 @@
+import { ENV } from "@/lib/utils";
+
 type CoverImage = {
   thumbnail?: string;
   small?: string;
@@ -75,7 +77,7 @@ export class Product {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const url = new URL(process.env.STRAPI_URL + "/api/products");
+  const url = new URL(ENV.STRAPI_URL + "/api/products");
   url.searchParams.append("sort", "name:asc");
   url.searchParams.append("pagination[pageSize]", "100");
   url.searchParams.append("pagination[page]", "1");
@@ -84,7 +86,7 @@ export async function getProducts(): Promise<Product[]> {
 
   const response = await fetch(url.toString(), {
     headers: {
-      Authorization: `Bearer ${process.env.STRAPI_TOKEN}`,
+      Authorization: `Bearer ${ENV.STRAPI_TOKEN}`,
     },
   });
   if (!response.ok) {
@@ -96,7 +98,7 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 function coverImageUrl(image: any): CoverImage {
-  const prefix = process.env.STRAPI_URL;
+  const prefix = ENV.STRAPI_URL;
 
   return {
     thumbnail: prefix + image.data.attributes.formats?.thumbnail?.url,

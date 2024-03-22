@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LinkIcon } from "@heroicons/react/24/outline";
+import { ENV } from "@/lib/utils";
 
 const year = DateTime.now().year;
 
@@ -29,7 +30,7 @@ export function Footer() {
     <footer className="flex items-center justify-between h-14 px-4 border-t sm:px-6 mt-2">
       <div className="container flex items-center justify-between max-w-6xl mx-auto">
         <div className="text-xs text-gray-500">
-          Copyright {year} © Panela Mágica
+          Copyright {year} © {ENV.APP_NAME}
         </div>
         <div className="flex items-center space-x-4">
           <Dialog>

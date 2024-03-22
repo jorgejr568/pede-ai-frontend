@@ -1,5 +1,6 @@
 import type { SaleRequest } from "@/pages/api/sales";
 import { getProducts, Product } from "@/API/products";
+import { ENV } from "@/lib/utils";
 
 export async function createSale(sale: SaleRequest): Promise<void> {
   const products = await getProducts();
@@ -18,7 +19,6 @@ export async function createSale(sale: SaleRequest): Promise<void> {
       (product) => product.id === saleItem.product_id,
     );
     if (!product) {
-      continue;
       throw new Error("Product not found");
     }
 
@@ -26,10 +26,10 @@ export async function createSale(sale: SaleRequest): Promise<void> {
   }
   await Promise.all(itemsPromises);
 
-  const response = await fetch(process.env.STRAPI_URL + "/api/sales", {
+  const response = await fetch(ENV.STRAPI_URL + "/api/sales", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.STRAPI_TOKEN}`,
+      Authorization: `Bearer ${ENV.STRAPI_TOKEN}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -50,10 +50,10 @@ async function createSaleProduct(
   product: Product,
   saleItem: SaleRequest["items"][number],
 ): Promise<number> {
-  const response = await fetch(process.env.STRAPI_URL + "/api/sale-products", {
+  const response = await fetch(ENV.STRAPI_URL + "/api/sale-products", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.STRAPI_TOKEN}`,
+      Authorization: `Bearer ${ENV.STRAPI_TOKEN}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
