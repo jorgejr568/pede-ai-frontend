@@ -31,12 +31,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex gap-4 items-center">
+      <div className="flex flex-col md:flex-row gap-4 items-center">
         <div
           style={{
             backgroundImage: `url("${product.cover_image.thumbnail || product.cover_image.original}")`,
           }}
-          className="h-56 w-56 bg-cover bg-center"
+          className="w-full h-56 md:w-56 bg-cover bg-center"
         />
         <div className="py-4">
           <h2 className="text-lg font-bold">{product.name}</h2>

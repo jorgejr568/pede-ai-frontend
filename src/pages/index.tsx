@@ -27,7 +27,7 @@ export default function Home(props: HomePageProps) {
           <Navbar />
           <Main className="relative">
             <div className="flex flex-col gap-8">
-              <h2 className="text-6xl font-bold">Bem vindo a Wagner Pastéis</h2>
+              <h2 className="text-3xl md:text-6xl font-bold">Wagner Pastéis</h2>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
                 {products.map((product) => (
