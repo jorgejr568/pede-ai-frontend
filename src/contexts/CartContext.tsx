@@ -1,4 +1,4 @@
-import { Product, TProduct } from "@/API";
+import { General, Product, TProduct } from "@/API";
 import {
   createContext,
   useCallback,
@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { getLiquid, getSalutation } from "@/lib/utils";
 
 type TCart = {
   product: TProduct;
@@ -47,6 +48,11 @@ class Cart {
   }
 }
 
+type CartContextConfig = {
+  phone_number: string;
+  sale_message_template: string;
+};
+
 type CartContextType = {
   items: Cart[];
   addItem: (product: Product, quantity: number) => void;
@@ -60,6 +66,7 @@ type CartContextType = {
   clearCart: () => void;
   itemsTotalPrice: number;
   itemsTotalCount: number;
+  sendToWhatsApp: () => Promise<void>;
 };
 
 export const CartContext = createContext<CartContextType>({
@@ -74,10 +81,21 @@ export const CartContext = createContext<CartContextType>({
   clearCart: () => {},
   itemsTotalPrice: 0,
   itemsTotalCount: 0,
+  sendToWhatsApp: async () => {},
 });
 
-export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+export const CartProvider = ({
+  children,
+  config,
+}: {
+  children: React.ReactNode;
+  config: General;
+}) => {
   const isMounted = useRef(false);
+  const configSaleMessageTemplate = useMemo(
+    () => getLiquid().parse(config.sale_message_template),
+    [config.sale_message_template],
+  );
   const [items, setItems] = useState<Cart[]>([]);
   const itemsTotalPrice = useMemo(
     () =>
@@ -148,6 +166,20 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setItems([]);
   }, []);
 
+  const sendToWhatsApp = useCallback(async () => {
+    const message = await getLiquid().render(configSaleMessageTemplate, {
+      salutation: getSalutation(),
+      items: items.map((item) => item.toJSON()),
+      total: itemsTotalPrice,
+    });
+
+    const url = `https://api.whatsapp.com/send?phone=${config.phone_number}&text=${encodeURIComponent(
+      message,
+    )}`;
+
+    window.open(url, "_blank");
+  }, [config, configSaleMessageTemplate, itemsTotalPrice, items]);
+
   useEffect(() => {
     if (isMounted.current) {
       return;
@@ -183,6 +215,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         clearCart,
         itemsTotalPrice,
         itemsTotalCount,
+        sendToWhatsApp,
       }}
     >
       {children}

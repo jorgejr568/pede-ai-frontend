@@ -37,9 +37,10 @@ export const CartDrawer = () => {
     removeItem,
     registerSale,
     clearCart,
+    sendToWhatsApp,
   } = useCart();
 
-  const handleFinishSale = () => {
+  const handleFinishSale = async () => {
     registerEvent(
       Event.new(
         EventType.REGISTER_SALE,
@@ -54,6 +55,7 @@ export const CartDrawer = () => {
     registerSale();
     clearCart();
     closeDrawer();
+    await sendToWhatsApp();
   };
 
   const handleQuantityChange = (product: Product) => (quantity: number) => {
