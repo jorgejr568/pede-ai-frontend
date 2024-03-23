@@ -1,14 +1,9 @@
-import { Inter } from "next/font/google";
 import { CartDrawer, Footer, Main, Navbar, ProductCard } from "@/components";
 import { getProducts, Product, TProduct } from "@/API/products";
 import { GetServerSideProps } from "next";
 import { useMemo } from "react";
 import { CartProvider } from "@/contexts/CartContext";
 import { SessionProvider } from "@/contexts/SessionContext";
-import { Button } from "@/components/ui/button";
-import { ShoppingCartIcon } from "@heroicons/react/24/outline";
-
-const inter = Inter({ subsets: ["latin"] });
 
 type HomePageProps = {
   products: TProduct[];
