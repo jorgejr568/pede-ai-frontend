@@ -20,12 +20,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { moneyBrl } from "@/lib/utils";
+import { moneyBrl, registerEvent } from "@/lib/utils";
 import { QuantityControl } from "@/components/QuantityControl";
+import { Event, EventType, Product } from "@/API";
+import { useSession } from "@/contexts/SessionContext";
 
 export const CartDrawer = () => {
+  const { sessionID } = useSession();
   const {
     items,
+    itemsTotalPrice,
     drawerOpen,
     closeDrawer,
     openDrawer,
@@ -36,9 +40,45 @@ export const CartDrawer = () => {
   } = useCart();
 
   const handleFinishSale = () => {
+    registerEvent(
+      Event.new(
+        EventType.REGISTER_SALE,
+        {
+          total: itemsTotalPrice,
+          items: items.map((item) => item.toJSON()),
+          origin: "CartDrawer",
+        },
+        sessionID,
+      ),
+    );
     registerSale();
     clearCart();
     closeDrawer();
+  };
+
+  const handleQuantityChange = (product: Product) => (quantity: number) => {
+    const requireDeletion = quantity <= 0;
+    const eventType = requireDeletion
+      ? EventType.REMOVE_FROM_CART
+      : EventType.UPDATE_CART;
+
+    registerEvent(
+      Event.new(
+        eventType,
+        {
+          product: product.toJSON(),
+          quantity,
+          origin: "CartDrawer",
+        },
+        sessionID,
+      ),
+    );
+
+    if (requireDeletion) {
+      return removeItem(product);
+    }
+
+    updateItemQuantity(product, quantity);
   };
 
   return (
@@ -70,12 +110,7 @@ export const CartDrawer = () => {
                       <QuantityControl
                         allowZero
                         value={item.quantity}
-                        onChange={(value) => {
-                          if (value <= 0) {
-                            return removeItem(item.product);
-                          }
-                          updateItemQuantity(item.product, value);
-                        }}
+                        onChange={handleQuantityChange(item.product)}
                       />
                     </TableCell>
                     <TableCell>
@@ -87,14 +122,7 @@ export const CartDrawer = () => {
               <TableFooter>
                 <TableRow>
                   <TableCell colSpan={2}>Total</TableCell>
-                  <TableCell>
-                    {moneyBrl(
-                      items.reduce(
-                        (acc, item) => acc + item.product.price * item.quantity,
-                        0,
-                      ),
-                    )}
-                  </TableCell>
+                  <TableCell>{moneyBrl(itemsTotalPrice)}</TableCell>
                 </TableRow>
               </TableFooter>
             </Table>

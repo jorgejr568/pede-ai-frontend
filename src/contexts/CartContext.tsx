@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -57,6 +58,8 @@ type CartContextType = {
   closeDrawer: () => void;
   registerSale: () => void;
   clearCart: () => void;
+  itemsTotalPrice: number;
+  itemsTotalCount: number;
 };
 
 export const CartContext = createContext<CartContextType>({
@@ -69,11 +72,23 @@ export const CartContext = createContext<CartContextType>({
   closeDrawer: () => {},
   registerSale: () => {},
   clearCart: () => {},
+  itemsTotalPrice: 0,
+  itemsTotalCount: 0,
 });
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const isMounted = useRef(false);
   const [items, setItems] = useState<Cart[]>([]);
+  const itemsTotalPrice = useMemo(
+    () =>
+      items.reduce((acc, item) => acc + item.product.price * item.quantity, 0),
+    [items],
+  );
+  const itemsTotalCount = useMemo(
+    () => items.reduce((acc, item) => acc + item.quantity, 0),
+    [items],
+  );
+
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
@@ -166,6 +181,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         closeDrawer,
         registerSale,
         clearCart,
+        itemsTotalPrice,
+        itemsTotalCount,
       }}
     >
       {children}

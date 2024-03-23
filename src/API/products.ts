@@ -2,9 +2,9 @@ import { ENV } from "@/lib/utils";
 
 type CoverImage = {
   thumbnail?: string;
-  small?: string;
-  medium?: string;
-  large?: string;
+  small: string | null;
+  medium: string | null;
+  large: string | null;
   original: string;
 };
 
@@ -99,12 +99,12 @@ export async function getProducts(): Promise<Product[]> {
 
 function coverImageUrl(image: any): CoverImage {
   const prefix = ENV.STRAPI_URL;
-
+  const formats = image.data.attributes.formats;
   return {
-    thumbnail: prefix + image.data.attributes.formats?.thumbnail?.url,
-    small: prefix + image.data.attributes.formats?.small?.url,
-    medium: prefix + image.data.attributes.formats?.medium?.url,
-    large: prefix + image.data.attributes.formats?.large?.url,
+    thumbnail: (formats?.thumbnail && prefix + formats?.thumbnail?.url) || null,
+    small: (formats?.small && prefix + formats?.small?.url) || null,
+    medium: (formats?.medium && prefix + formats?.medium?.url) || null,
+    large: (formats?.large && prefix + formats?.large?.url) || null,
     original: prefix + image.data.attributes.url,
   };
 }

@@ -1,29 +1,31 @@
-import { Product } from "@/API";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { EventType, Product, Event } from "@/API";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { moneyBrl } from "@/lib/utils";
+import { moneyBrl, registerEvent } from "@/lib/utils";
 import { QuantityControl } from "@/components/QuantityControl";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useSession } from "@/contexts/SessionContext";
 
 type ProductCardProps = {
   product: Product;
 };
 
-const IMAGE_SIZE = 150;
 export const ProductCard = ({ product }: ProductCardProps) => {
+  const { sessionID } = useSession();
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     addItem(product, quantity);
+    registerEvent(
+      Event.new(
+        EventType.ADD_TO_CART,
+        { product: product.toJSON(), quantity },
+        sessionID,
+      ),
+    );
     setQuantity(1);
   };
 

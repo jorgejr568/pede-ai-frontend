@@ -4,6 +4,9 @@ import { getProducts, Product, TProduct } from "@/API/products";
 import { GetServerSideProps } from "next";
 import { useMemo } from "react";
 import { CartProvider } from "@/contexts/CartContext";
+import { SessionProvider } from "@/contexts/SessionContext";
+import { Button } from "@/components/ui/button";
+import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,24 +21,26 @@ export default function Home(props: HomePageProps) {
   );
 
   return (
-    <CartProvider>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <Main>
-          <div className="flex flex-col gap-8">
-            <h2 className="text-6xl font-bold">Bem vindo a Wagner Pastéis</h2>
+    <SessionProvider>
+      <CartProvider>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <Main className="relative">
+            <div className="flex flex-col gap-8">
+              <h2 className="text-6xl font-bold">Bem vindo a Wagner Pastéis</h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
-              {products.map((product) => (
-                <ProductCard product={product} key={product.id} />
-              ))}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
+                {products.map((product) => (
+                  <ProductCard product={product} key={product.id} />
+                ))}
+              </div>
             </div>
-          </div>
-        </Main>
-        <Footer />
-      </div>
-      <CartDrawer />
-    </CartProvider>
+          </Main>
+          <Footer />
+        </div>
+        <CartDrawer />
+      </CartProvider>
+    </SessionProvider>
   );
 }
 
