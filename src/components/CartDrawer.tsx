@@ -52,7 +52,7 @@ export const CartDrawer = () => {
         sessionID,
       ),
     );
-    registerSale();
+    await registerSale();
     clearCart();
     closeDrawer();
     await sendToWhatsApp();

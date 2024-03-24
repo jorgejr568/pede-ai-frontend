@@ -62,7 +62,7 @@ type CartContextType = {
   drawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
-  registerSale: () => void;
+  registerSale: () => Promise<void>;
   clearCart: () => void;
   itemsTotalPrice: number;
   itemsTotalCount: number;
@@ -77,7 +77,7 @@ export const CartContext = createContext<CartContextType>({
   drawerOpen: false,
   openDrawer: () => {},
   closeDrawer: () => {},
-  registerSale: () => {},
+  registerSale: async () => {},
   clearCart: () => {},
   itemsTotalPrice: 0,
   itemsTotalCount: 0,
@@ -145,8 +145,8 @@ export const CartProvider = ({
     [items],
   );
 
-  const registerSale = useCallback(() => {
-    fetch("/api/sales", {
+  const registerSale = useCallback(async () => {
+    const response = await fetch("/api/sales", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -160,6 +160,10 @@ export const CartProvider = ({
         })),
       }),
     });
+
+    if (!response.ok) {
+      throw new Error("Failed to register sale " + response.statusText);
+    }
   }, [items]);
 
   const clearCart = useCallback(() => {

@@ -2,29 +2,32 @@ import type { SaleRequest } from "@/pages/api/sales";
 import { getProducts, Product } from "@/API/products";
 import { ENV } from "@/lib/utils";
 
+type TItem = {
+  product: number;
+  quantity: number;
+  price: number;
+};
+
 export async function createSale(sale: SaleRequest): Promise<void> {
   const products = await getProducts();
+  const body = {
+    name: sale.name,
+    phone: sale.phone,
+    items: sale.items.map((item): TItem => {
+      const product = products.find(
+        (product) => product.id === item.product_id,
+      );
+      if (!product) {
+        throw new Error("Product not found");
+      }
 
-  const itemsIDs: number[] = [];
-  const itemsPromises = [];
-  const insertItem = async (
-    product: Product,
-    saleItem: SaleRequest["items"][number],
-  ) => {
-    itemsIDs.push(await createSaleProduct(product, saleItem));
+      return {
+        product: product.id,
+        quantity: item.quantity,
+        price: product.price,
+      };
+    }),
   };
-
-  for (const saleItem of sale.items) {
-    const product = products.find(
-      (product) => product.id === saleItem.product_id,
-    );
-    if (!product) {
-      throw new Error("Product not found");
-    }
-
-    itemsPromises.push(insertItem(product, saleItem));
-  }
-  await Promise.all(itemsPromises);
 
   const response = await fetch(ENV.STRAPI_URL + "/api/sales", {
     method: "POST",
@@ -33,41 +36,11 @@ export async function createSale(sale: SaleRequest): Promise<void> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      data: {
-        name: sale.name,
-        phone: sale.phone,
-        sale_products: itemsIDs,
-      },
+      data: body,
     }),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to create sale");
+    throw new Error("Failed to create sale ");
   }
-}
-
-async function createSaleProduct(
-  product: Product,
-  saleItem: SaleRequest["items"][number],
-): Promise<number> {
-  const response = await fetch(ENV.STRAPI_URL + "/api/sale-products", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${ENV.STRAPI_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      data: {
-        ...saleItem,
-        unit_price: product.price,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to create sale product");
-  }
-
-  const data = await response.json();
-  return data.data.id;
 }
