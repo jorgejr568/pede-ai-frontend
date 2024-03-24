@@ -10,6 +10,7 @@ type CoverImage = {
 
 export type TProduct = {
   id: number;
+  category: string;
   name: string;
   price: number;
   active: boolean;
@@ -17,58 +18,52 @@ export type TProduct = {
 };
 
 export class Product {
-  constructor(
-    private readonly _id: number,
-    private readonly _name: string,
-    private readonly _price: number,
-    private readonly _active: boolean,
-    private readonly _cover_image: CoverImage,
-  ) {}
+  constructor(private readonly _props: TProduct) {}
 
   get id(): number {
-    return this._id;
+    return this._props.id;
   }
 
   get name(): string {
-    return this._name;
+    return this._props.name;
+  }
+
+  get category(): string {
+    return this._props.category;
   }
 
   get price(): number {
-    return this._price;
+    return this._props.price;
   }
 
   get active(): boolean {
-    return this._active;
+    return this._props.active;
   }
 
   get cover_image(): CoverImage {
-    return this._cover_image;
+    return this._props.cover_image;
   }
 
   static fromStrapi(data: any): Product {
-    return new Product(
-      data.id,
-      data.attributes.name,
-      data.attributes.price,
-      data.attributes.active,
-      coverImageUrl(data.attributes.cover_image),
-    );
+    return new Product({
+      id: data.id,
+      name: data.attributes.name,
+      category: data.attributes.category,
+      price: data.attributes.price,
+      active: data.attributes.active,
+      cover_image: coverImageUrl(data.attributes.cover_image),
+    });
   }
 
   public static fromJSON(data: TProduct): Product {
-    return new Product(
-      data.id,
-      data.name,
-      data.price,
-      data.active,
-      data.cover_image,
-    );
+    return new Product(data);
   }
 
-  public toJSON(): any {
+  public toJSON(): TProduct {
     return {
       id: this.id,
       name: this.name,
+      category: this.category,
       price: this.price,
       active: this.active,
       cover_image: this.cover_image,

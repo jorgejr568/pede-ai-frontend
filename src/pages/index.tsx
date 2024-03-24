@@ -6,7 +6,8 @@ import { CartProvider } from "@/contexts/CartContext";
 import { SessionProvider } from "@/contexts/SessionContext";
 import { General, getGeneral, TGeneral } from "@/API";
 import Head from "next/head";
-import { ENV } from "@/lib/utils";
+import { ENV, CATEGORY_ORDER } from "@/lib/utils";
+import { groupBy, orderBy } from "lodash";
 
 type HomePageProps = {
   products: TProduct[];
@@ -14,10 +15,19 @@ type HomePageProps = {
 };
 
 export default function Home(props: HomePageProps) {
-  const products = useMemo<Product[]>(
-    () => props.products.map((product) => Product.fromJSON(product)),
-    [props.products],
-  );
+  const products = useMemo<{ [k: string]: Product[] }>(() => {
+    const products = props.products.map((product) => Product.fromJSON(product));
+    const grouped = groupBy(products, "category");
+
+    return Object.fromEntries(
+      orderBy(Object.entries(grouped), ([category]) =>
+        CATEGORY_ORDER.includes(category)
+          ? CATEGORY_ORDER.indexOf(category)
+          : Infinity,
+      ),
+    );
+  }, [props.products]);
+
   const general = useMemo<General>(
     () => General.fromJSON(props.general),
     [props.general],
@@ -40,11 +50,18 @@ export default function Home(props: HomePageProps) {
                   {ENV.CLIENT_NAME}
                 </h2>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
-                  {products.map((product) => (
-                    <ProductCard product={product} key={product.id} />
-                  ))}
-                </div>
+                {Object.keys(products).map((category) => (
+                  <div key={category} className="mb-6">
+                    <h3 className="text-1xl md:text-2xl font-bold text-gray-800 mb-3">
+                      {category}
+                    </h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
+                      {products[category].map((product) => (
+                        <ProductCard product={product} key={product.id} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </Main>
             <Footer />
