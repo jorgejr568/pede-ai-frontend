@@ -14,9 +14,7 @@ export default async function handler(
 }
 
 const schema = z.object({
-  name: z.string(),
-  phone: z.string(),
-
+  address: z.string(),
   items: z.array(
     z.object({
       product_id: z.number().int().positive(),

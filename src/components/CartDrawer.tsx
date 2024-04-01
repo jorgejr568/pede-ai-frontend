@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { SVGProps } from "react";
+import { SVGProps, useEffect, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import {
   Table,
@@ -24,8 +24,10 @@ import { moneyBrl, registerEvent } from "@/lib/utils";
 import { QuantityControl } from "@/components/QuantityControl";
 import { Event, EventType, Product } from "@/API";
 import { useSession } from "@/contexts/SessionContext";
+import { AddressModal } from "@/components/AddressModal";
 
 export const CartDrawer = () => {
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
   const { sessionID } = useSession();
   const {
     items,
@@ -40,22 +42,8 @@ export const CartDrawer = () => {
     sendToWhatsApp,
   } = useCart();
 
-  const handleFinishSale = async () => {
-    registerEvent(
-      Event.new(
-        EventType.REGISTER_SALE,
-        {
-          total: itemsTotalPrice,
-          items: items.map((item) => item.toJSON()),
-          origin: "CartDrawer",
-        },
-        sessionID,
-      ),
-    );
-    await registerSale();
-    clearCart();
-    closeDrawer();
-    await sendToWhatsApp();
+  const handleFinishSale = () => {
+    setAddressModalOpen(true);
   };
 
   const handleQuantityChange = (product: Product) => (quantity: number) => {
@@ -81,6 +69,26 @@ export const CartDrawer = () => {
     }
 
     updateItemQuantity(product, quantity);
+  };
+
+  const handleAddressConfirm = async (address: string) => {
+    registerEvent(
+      Event.new(
+        EventType.REGISTER_SALE,
+        {
+          total: itemsTotalPrice,
+          items: items.map((item) => item.toJSON()),
+          origin: "CartDrawer",
+          address,
+        },
+        sessionID,
+      ),
+    );
+    await registerSale(address);
+    clearCart();
+    closeDrawer();
+    setAddressModalOpen(false);
+    await sendToWhatsApp(address);
   };
 
   return (
@@ -140,6 +148,11 @@ export const CartDrawer = () => {
           </DrawerFooter>
         </div>
       </DrawerContent>
+      <AddressModal
+        isOpen={addressModalOpen}
+        onClose={() => setAddressModalOpen(false)}
+        onConfirm={handleAddressConfirm}
+      />
     </Drawer>
   );
 };

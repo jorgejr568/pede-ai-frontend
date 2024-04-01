@@ -62,11 +62,11 @@ type CartContextType = {
   drawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
-  registerSale: () => Promise<void>;
+  registerSale: (address: string) => Promise<void>;
   clearCart: () => void;
   itemsTotalPrice: number;
   itemsTotalCount: number;
-  sendToWhatsApp: () => Promise<void>;
+  sendToWhatsApp: (address: string) => Promise<void>;
 };
 
 export const CartContext = createContext<CartContextType>({
@@ -145,44 +145,50 @@ export const CartProvider = ({
     [items],
   );
 
-  const registerSale = useCallback(async () => {
-    const response = await fetch("/api/sales", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: "test" + Date.now(),
-        phone: "123456789",
-        items: items.map((item) => ({
-          product_id: item.product.id,
-          quantity: item.quantity,
-        })),
-      }),
-    });
+  const registerSale = useCallback(
+    async (address: string) => {
+      const response = await fetch("/api/sales", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          address,
+          items: items.map((item) => ({
+            product_id: item.product.id,
+            quantity: item.quantity,
+          })),
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to register sale " + response.statusText);
-    }
-  }, [items]);
+      if (!response.ok) {
+        throw new Error("Failed to register sale " + response.statusText);
+      }
+    },
+    [items],
+  );
 
   const clearCart = useCallback(() => {
     setItems([]);
   }, []);
 
-  const sendToWhatsApp = useCallback(async () => {
-    const message = await getLiquid().render(configSaleMessageTemplate, {
-      salutation: getSalutation(),
-      items: items.map((item) => item.toJSON()),
-      total: itemsTotalPrice,
-    });
+  const sendToWhatsApp = useCallback(
+    async (address: string) => {
+      const message = await getLiquid().render(configSaleMessageTemplate, {
+        salutation: getSalutation(),
+        items: items.map((item) => item.toJSON()),
+        total: itemsTotalPrice,
+        address,
+      });
 
-    const url = `https://api.whatsapp.com/send?phone=${config.phone_number}&text=${encodeURIComponent(
-      message,
-    )}`;
+      const url = `https://api.whatsapp.com/send?phone=${config.phone_number}&text=${encodeURIComponent(
+        message,
+      )}`;
 
-    window.open(url, "_blank");
-  }, [config, configSaleMessageTemplate, itemsTotalPrice, items]);
+      window.open(url, "_blank");
+    },
+    [config, configSaleMessageTemplate, itemsTotalPrice, items],
+  );
 
   useEffect(() => {
     if (isMounted.current) {

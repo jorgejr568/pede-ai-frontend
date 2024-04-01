@@ -19,6 +19,7 @@ export const ENV = Object.freeze({
   CLIENT_NAME: process.env.NEXT_PUBLIC_CLIENT_NAME || "Wagner Pastéis",
   STRAPI_URL: process.env.STRAPI_URL,
   STRAPI_TOKEN: process.env.STRAPI_TOKEN,
+  BRASIL_API_URL: process.env.BRASIL_API_URL || "https://brasilapi.com.br",
 });
 
 export function registerEvent(event: Event) {

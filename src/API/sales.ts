@@ -11,8 +11,7 @@ type TItem = {
 export async function createSale(sale: SaleRequest): Promise<void> {
   const products = await getProducts();
   const body = {
-    name: sale.name,
-    phone: sale.phone,
+    address: sale.address,
     items: sale.items.map((item): TItem => {
       const product = products.find(
         (product) => product.id === item.product_id,

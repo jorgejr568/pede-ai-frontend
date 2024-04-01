@@ -8,6 +8,7 @@ import { General, getGeneral, TGeneral } from "@/API";
 import Head from "next/head";
 import { ENV, CATEGORY_ORDER } from "@/lib/utils";
 import { groupBy, orderBy } from "lodash";
+import { AddressModal } from "@/components/AddressModal";
 
 type HomePageProps = {
   products: TProduct[];
