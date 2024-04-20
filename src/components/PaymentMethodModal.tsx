@@ -81,7 +81,10 @@ export function PaymentMethodModal({
           >
             {Object.entries(PaymentMethodTypeEnum).map(([key, value]) => {
               return (
-                <div className="flex items-center space-x-2" key={key}>
+                <div
+                  className="flex items-center space-x-2 select-none"
+                  key={key}
+                >
                   <RadioGroupItem
                     value={value}
                     checked={paymentMethod?.type === value}
@@ -147,6 +150,11 @@ function AdditionalInfoDinheiroComponent({
   const [selectedOption, setSelectedOption] = useState<string>(OPTIONS[0]);
 
   useEffect(() => {
+    if (selectedOption === "Não precisa") {
+      onChange("Não precisa de troco");
+      return;
+    }
+
     onChange(`Troco para: ${selectedOption}`);
   }, [selectedOption, onChange]);
 
@@ -158,7 +166,7 @@ function AdditionalInfoDinheiroComponent({
         className="flex flex-col md:flex-row justify-center gap-x-3"
       >
         {OPTIONS.map((option, key) => (
-          <div key={key} className="flex items-center space-x-2">
+          <div key={key} className="flex items-center space-x-2 select-none">
             <RadioGroupItem
               value={option}
               checked={selectedOption === option}
