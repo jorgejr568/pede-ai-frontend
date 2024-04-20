@@ -2,14 +2,12 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import { SVGProps, useEffect, useState } from "react";
+import { SVGProps, useEffect, useRef, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import {
   Table,
@@ -25,10 +23,17 @@ import { QuantityControl } from "@/components/QuantityControl";
 import { Event, EventType, Product } from "@/API";
 import { useSession } from "@/contexts/SessionContext";
 import { AddressModal } from "@/components/AddressModal";
+import {
+  PaymentMethod,
+  PaymentMethodModal,
+} from "@/components/PaymentMethodModal";
 
 export const CartDrawer = () => {
   const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const addressRef = useRef<string | null>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const { sessionID } = useSession();
+
   const {
     items,
     itemsTotalPrice,
@@ -72,9 +77,11 @@ export const CartDrawer = () => {
   };
 
   const handleAddressConfirm = async (address: string) => {
+    addressRef.current = address;
+
     registerEvent(
       Event.new(
-        EventType.REGISTER_SALE,
+        EventType.FILLED_ADDRESS,
         {
           total: itemsTotalPrice,
           items: items.map((item) => item.toJSON()),
@@ -84,11 +91,30 @@ export const CartDrawer = () => {
         sessionID,
       ),
     );
-    await registerSale(address);
+
+    setAddressModalOpen(false);
+    setPaymentModalOpen(true);
+  };
+
+  const handlePaymentMethodConfirm = async (paymentMethod: PaymentMethod) => {
+    registerEvent(
+      Event.new(
+        EventType.REGISTER_SALE,
+        {
+          address: addressRef.current,
+          total: itemsTotalPrice,
+          items: items.map((item) => item.toJSON()),
+          origin: "CartDrawer",
+          paymentMethod,
+        },
+        sessionID,
+      ),
+    );
+    await registerSale(addressRef.current as string, paymentMethod);
     clearCart();
     closeDrawer();
-    setAddressModalOpen(false);
-    await sendToWhatsApp(address);
+    setPaymentModalOpen(false);
+    sendToWhatsApp(addressRef.current as string, paymentMethod);
   };
 
   return (
@@ -152,6 +178,11 @@ export const CartDrawer = () => {
         isOpen={addressModalOpen}
         onClose={() => setAddressModalOpen(false)}
         onConfirm={handleAddressConfirm}
+      />
+      <PaymentMethodModal
+        isOpen={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        onConfirm={handlePaymentMethodConfirm}
       />
     </Drawer>
   );

@@ -27,11 +27,17 @@ export function Navbar() {
   };
 
   return (
-    <header className="flex h-14 px-4 border-b lg:h-20 md:px-6">
+    <header className="flex h-16 px-4 border-b md:h-24 md:px-6">
       <div className="container flex items-center justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-2 text-sm font-semibold uppercase">
           <Link className="flex items-center gap-2" href="/">
-            <Image src="/logo.png" alt={ENV.APP_NAME} width={50} height={50} />
+            <Image
+              src="/logo.png"
+              alt={ENV.APP_NAME}
+              width={90}
+              height={90}
+              className={`h-16 w-16 md:h-24 md:w-24`}
+            />
             <span className="sr-only">{ENV.APP_NAME}</span>
           </Link>
         </div>

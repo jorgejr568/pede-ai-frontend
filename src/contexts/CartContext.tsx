@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { getLiquid, getSalutation } from "@/lib/utils";
+import { PaymentMethod, PaymentMethodNameMap } from "@/components";
 
 type TCart = {
   product: TProduct;
@@ -62,11 +63,14 @@ type CartContextType = {
   drawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
-  registerSale: (address: string) => Promise<void>;
+  registerSale: (
+    address: string,
+    paymentMethod: PaymentMethod,
+  ) => Promise<void>;
   clearCart: () => void;
   itemsTotalPrice: number;
   itemsTotalCount: number;
-  sendToWhatsApp: (address: string) => Promise<void>;
+  sendToWhatsApp: (address: string, paymentMethod: PaymentMethod) => void;
 };
 
 export const CartContext = createContext<CartContextType>({
@@ -146,7 +150,7 @@ export const CartProvider = ({
   );
 
   const registerSale = useCallback(
-    async (address: string) => {
+    async (address: string, paymentMethod: PaymentMethod) => {
       const response = await fetch("/api/sales", {
         method: "POST",
         headers: {
@@ -158,6 +162,7 @@ export const CartProvider = ({
             product_id: item.product.id,
             quantity: item.quantity,
           })),
+          payment_method: paymentMethod,
         }),
       });
 
@@ -173,12 +178,15 @@ export const CartProvider = ({
   }, []);
 
   const sendToWhatsApp = useCallback(
-    async (address: string) => {
+    async (address: string, paymentMethod: PaymentMethod) => {
       const message = await getLiquid().render(configSaleMessageTemplate, {
         salutation: getSalutation(),
         items: items.map((item) => item.toJSON()),
         total: itemsTotalPrice,
         address,
+        payment_method: {
+          ...paymentMethod,
+        },
       });
 
       const url = `https://api.whatsapp.com/send?phone=${config.phone_number}&text=${encodeURIComponent(

@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 import { createSale } from "@/API";
+import { PaymentMethodTypeEnum } from "@/components";
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,6 +22,10 @@ const schema = z.object({
       quantity: z.number().int().positive().min(1),
     }),
   ),
+  payment_method: z.object({
+    type: z.enum(Object.values(PaymentMethodTypeEnum) as [string, ...string[]]),
+    additional_info: z.string().optional(),
+  }),
 });
 
 export type SaleRequest = z.infer<typeof schema>;

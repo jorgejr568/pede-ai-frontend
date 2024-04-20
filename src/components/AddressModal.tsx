@@ -1,11 +1,4 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogOverlay,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTitle, DialogContent } from "@/components/ui/dialog";
 import {
   createContext,
   useCallback,

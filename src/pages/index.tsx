@@ -34,12 +34,14 @@ export default function Home(props: HomePageProps) {
     [props.general],
   );
 
+  const title = useMemo<string>(() => {
+    return `${ENV.CLIENT_NAME} | ${ENV.APP_NAME}`;
+  }, []);
+
   return (
     <>
       <Head>
-        <title>
-          {ENV.CLIENT_NAME} | {ENV.APP_NAME}
-        </title>
+        <title>{title}</title>
       </Head>
       <SessionProvider>
         <CartProvider config={general}>
