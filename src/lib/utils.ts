@@ -16,7 +16,7 @@ export function moneyBrl(value: number) {
 
 export const ENV = Object.freeze({
   APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "Pede Aí",
-  CLIENT_NAME: process.env.NEXT_PUBLIC_CLIENT_NAME || "Itaipava Pastéis",
+  CLIENT_NAME: process.env.NEXT_PUBLIC_CLIENT_NAME || "Itaipava Pastel",
   STRAPI_URL: process.env.STRAPI_URL,
   STRAPI_TOKEN: process.env.STRAPI_TOKEN,
   BRASIL_API_URL: process.env.BRASIL_API_URL || "https://brasilapi.com.br",
