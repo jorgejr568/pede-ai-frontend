@@ -54,8 +54,8 @@ export default function Home(props: HomePageProps) {
                 </h2>
 
                 {Object.keys(products).map((category) => (
-                  <div key={category} className="mb-6">
-                    <h3 className="text-1xl md:text-2xl font-bold text-gray-800 mb-3">
+                  <div key={category} className="my-6">
+                    <h3 className="text-1xl md:text-2xl font-bold text-primary text-left mb-6">
                       {category}
                     </h3>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">

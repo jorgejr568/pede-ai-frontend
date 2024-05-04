@@ -164,7 +164,7 @@ export const CartDrawer = () => {
             </Table>
           </div>
           <DrawerFooter>
-            <Button variant="whatsapp" onClick={handleFinishSale}>
+            <Button onClick={handleFinishSale}>
               <WhatsappIcon className="text-white h-4 w-4 mr-2" />
               Finalizar compra
             </Button>
