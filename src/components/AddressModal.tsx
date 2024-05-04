@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent } from "@/components/ui/dialog";
-import {
+import React, {
   createContext,
   useCallback,
   useContext,
@@ -81,29 +81,35 @@ function PostalCodeStep({ nextStep }: StepProps) {
   const [loading, setLoading] = useState(false);
   const postalCodeRef = useRef<HTMLInputElement>(null);
   const { setAddress } = useAddress();
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await getPostalCode(postalCodeRef.current?.value || "");
-      setAddress({
-        address: `${response.city}, ${response.neighborhood}, ${response.street}`,
-      });
-      nextStep();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      try {
+        const response = await getPostalCode(
+          postalCodeRef.current?.value || "",
+        );
+        setAddress({
+          address: `${response.city}, ${response.neighborhood}, ${response.street}`,
+        });
+        nextStep();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setAddress, nextStep],
+  );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedPostalCode = useCallback(
     debounce((e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.value.length === 9) {
         handleSubmit(e);
       }
     }, 800),
-    [],
+    [handleSubmit],
   );
 
   useEffect(() => {

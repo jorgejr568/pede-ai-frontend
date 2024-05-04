@@ -125,12 +125,13 @@ type AdditionalInfoProps = {
   onChange: (value: string) => void;
 };
 
+const NOTAS = [0, 10, 20, 50, 100];
+
 function AdditionalInfoDinheiroComponent({
   value,
   onChange,
 }: AdditionalInfoProps) {
   const { itemsTotalPrice } = useCart();
-  const NOTAS = [0, 10, 20, 50, 100];
 
   const OPTIONS = useMemo<string[]>(() => {
     const startFrom = Math.ceil(itemsTotalPrice / 10) * 10;
@@ -146,7 +147,7 @@ function AdditionalInfoDinheiroComponent({
         }),
       ),
     ];
-  }, [itemsTotalPrice, NOTAS]);
+  }, [itemsTotalPrice]);
   const [selectedOption, setSelectedOption] = useState<string>(OPTIONS[0]);
 
   useEffect(() => {
