@@ -1,5 +1,5 @@
 import { CartDrawer, Footer, Main, Navbar, ProductCard } from "@/components";
-import { getProducts, Product, TProduct } from "@/API/products";
+import { Category, getProducts, Product, TProduct } from "@/API/products";
 import { GetServerSideProps } from "next";
 import { useMemo } from "react";
 import { CartProvider } from "@/contexts/CartContext";
@@ -15,16 +15,23 @@ type HomePageProps = {
 };
 
 export default function Home(props: HomePageProps) {
-  const products = useMemo<{ [k: string]: Product[] }>(() => {
+  const categories = useMemo<
+    { category: Category; products: Product[] }[]
+  >(() => {
     const products = props.products.map((product) => Product.fromJSON(product));
     const grouped = groupBy(products, (product) => product.category.id);
 
-    return Object.fromEntries(
-      orderBy(
-        Object.entries(grouped),
-        ([, products]) => products[0].category.order,
-      ),
+    const orderedGroups: { category: Category; products: Product[] }[] = [];
+    orderBy(Object.keys(grouped), (k) => grouped[k][0].category.order).forEach(
+      (key) => {
+        orderedGroups.push({
+          category: Category.fromJSON(grouped[key][0].category),
+          products: grouped[key],
+        });
+      },
     );
+
+    return orderedGroups;
   }, [props.products]);
 
   const general = useMemo<General>(
@@ -51,20 +58,18 @@ export default function Home(props: HomePageProps) {
                   {ENV.CLIENT_NAME}
                 </h2>
 
-                {Object.entries(products).map(
-                  ([categoryId, categoryProducts]) => (
-                    <div key={categoryId} className="my-6">
-                      <h3 className="text-1xl md:text-2xl font-bold text-primary text-left mb-6">
-                        {categoryProducts[0].category.name}
-                      </h3>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
-                        {categoryProducts.map((product) => (
-                          <ProductCard product={product} key={product.id} />
-                        ))}
-                      </div>
+                {categories.map(({ category, products }) => (
+                  <div key={category.id} className="my-6">
+                    <h3 className="text-1xl md:text-2xl font-bold text-primary text-left mb-6">
+                      {category.name}
+                    </h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
+                      {products.map((product) => (
+                        <ProductCard product={product} key={product.id} />
+                      ))}
                     </div>
-                  ),
-                )}
+                  </div>
+                ))}
               </div>
             </Main>
             <Footer />
