@@ -132,6 +132,11 @@ export async function getProducts(): Promise<Product[]> {
             $notNull: true,
           },
         },
+        cover_image: {
+          id: {
+            $notNull: true,
+          },
+        },
       },
       pagination: {
         pageSize: 100,
