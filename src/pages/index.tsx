@@ -6,9 +6,8 @@ import { CartProvider } from "@/contexts/CartContext";
 import { SessionProvider } from "@/contexts/SessionContext";
 import { General, getGeneral, TGeneral } from "@/API";
 import Head from "next/head";
-import { ENV, CATEGORY_ORDER } from "@/lib/utils";
+import { ENV } from "@/lib/utils";
 import { groupBy, orderBy } from "lodash";
-import { AddressModal } from "@/components/AddressModal";
 
 type HomePageProps = {
   products: TProduct[];
@@ -18,13 +17,12 @@ type HomePageProps = {
 export default function Home(props: HomePageProps) {
   const products = useMemo<{ [k: string]: Product[] }>(() => {
     const products = props.products.map((product) => Product.fromJSON(product));
-    const grouped = groupBy(products, "category");
+    const grouped = groupBy(products, (product) => product.category.id);
 
     return Object.fromEntries(
-      orderBy(Object.entries(grouped), ([category]) =>
-        CATEGORY_ORDER.includes(category)
-          ? CATEGORY_ORDER.indexOf(category)
-          : Infinity,
+      orderBy(
+        Object.entries(grouped),
+        ([, products]) => products[0].category.order,
       ),
     );
   }, [props.products]);
@@ -53,18 +51,20 @@ export default function Home(props: HomePageProps) {
                   {ENV.CLIENT_NAME}
                 </h2>
 
-                {Object.keys(products).map((category) => (
-                  <div key={category} className="my-6">
-                    <h3 className="text-1xl md:text-2xl font-bold text-primary text-left mb-6">
-                      {category}
-                    </h3>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
-                      {products[category].map((product) => (
-                        <ProductCard product={product} key={product.id} />
-                      ))}
+                {Object.entries(products).map(
+                  ([categoryId, categoryProducts]) => (
+                    <div key={categoryId} className="my-6">
+                      <h3 className="text-1xl md:text-2xl font-bold text-primary text-left mb-6">
+                        {categoryProducts[0].category.name}
+                      </h3>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
+                        {categoryProducts.map((product) => (
+                          <ProductCard product={product} key={product.id} />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </Main>
             <Footer />

@@ -1,4 +1,5 @@
 import { ENV } from "@/lib/utils";
+import qs from "qs";
 
 type CoverImage = {
   thumbnail?: string;
@@ -8,9 +9,51 @@ type CoverImage = {
   original: string;
 };
 
+export type TCategory = {
+  id: number;
+  name: string;
+  order: number;
+};
+
+export class Category {
+  constructor(private readonly _props: TCategory) {}
+
+  get id(): number {
+    return this._props.id;
+  }
+
+  get name(): string {
+    return this._props.name;
+  }
+
+  get order(): number {
+    return this._props.order;
+  }
+
+  static fromJSON(data: TCategory): Category {
+    return new Category(data);
+  }
+
+  public toJSON(): TCategory {
+    return {
+      id: this.id,
+      name: this.name,
+      order: this.order,
+    };
+  }
+
+  static fromStrapi(data: any): Category {
+    return new Category({
+      id: data.id,
+      name: data.attributes.name,
+      order: data.attributes.order,
+    });
+  }
+}
+
 export type TProduct = {
   id: number;
-  category: string;
+  category: TCategory;
   name: string;
   price: number;
   active: boolean;
@@ -28,8 +71,8 @@ export class Product {
     return this._props.name;
   }
 
-  get category(): string {
-    return this._props.category;
+  get category(): Category {
+    return Category.fromJSON(this._props.category);
   }
 
   get price(): number {
@@ -48,7 +91,7 @@ export class Product {
     return new Product({
       id: data.id,
       name: data.attributes.name,
-      category: data.attributes.category,
+      category: Category.fromStrapi(data.attributes.category.data).toJSON(),
       price: data.attributes.price,
       active: data.attributes.active,
       cover_image: coverImageUrl(data.attributes.cover_image),
@@ -63,7 +106,7 @@ export class Product {
     return {
       id: this.id,
       name: this.name,
-      category: this.category,
+      category: this.category.toJSON(),
       price: this.price,
       active: this.active,
       cover_image: this.cover_image,
@@ -73,18 +116,40 @@ export class Product {
 
 export async function getProducts(): Promise<Product[]> {
   const url = new URL(ENV.STRAPI_URL + "/api/products");
-  url.searchParams.append("sort", "name:asc");
-  url.searchParams.append("pagination[pageSize]", "100");
-  url.searchParams.append("pagination[page]", "1");
-  url.searchParams.append("filter[active]", "true");
-  url.searchParams.append("populate", "cover_image");
+
+  url.search = qs.stringify(
+    {
+      sort: "name:asc",
+      filters: {
+        active: true,
+        category: {
+          id: {
+            $notNull: true,
+          },
+        },
+      },
+      pagination: {
+        pageSize: 100,
+        page: 1,
+      },
+      populate: ["category", "cover_image"],
+    },
+    {
+      encodeValuesOnly: true,
+    },
+  );
 
   const response = await fetch(url.toString(), {
     headers: {
       Authorization: `Bearer ${ENV.STRAPI_TOKEN}`,
     },
   });
+
   if (!response.ok) {
+    console.error(
+      `Failed to fetch products: ${response.statusText}`,
+      JSON.stringify(await response.json()),
+    );
     throw new Error(response.statusText);
   }
 
