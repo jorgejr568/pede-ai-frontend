@@ -61,6 +61,7 @@ export type TProduct = {
 };
 
 export class Product {
+  private _category: Category | undefined;
   constructor(private readonly _props: TProduct) {}
 
   get id(): number {
@@ -72,7 +73,11 @@ export class Product {
   }
 
   get category(): Category {
-    return Category.fromJSON(this._props.category);
+    if (!this._category) {
+      this._category = Category.fromJSON(this._props.category);
+    }
+
+    return this._category;
   }
 
   get price(): number {
