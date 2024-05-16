@@ -4,7 +4,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { uniq } from "lodash";
+import { orderBy, uniq } from "lodash";
 
 export enum PaymentMethodTypeEnum {
   CREDITO = "CREDITO",
@@ -125,7 +125,9 @@ type AdditionalInfoProps = {
   onChange: (value: string) => void;
 };
 
-const NOTAS = [0, 10, 20, 50, 100];
+const NOTAS = [0, 10, 20, 50, 100, 200];
+const floatToBrl = (value: number) =>
+  value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 function AdditionalInfoDinheiroComponent({
   value,
@@ -137,15 +139,22 @@ function AdditionalInfoDinheiroComponent({
     const startFrom = Math.ceil(itemsTotalPrice / 10) * 10;
     return [
       "Não precisa",
-      ...uniq(
-        NOTAS.map((nota) => {
-          if (nota >= startFrom) {
-            return `R$ ${nota},00`;
-          }
+      ...orderBy(
+        uniq(
+          NOTAS.map((nota) => {
+            if (nota === 200 && startFrom < 100) {
+              return 0;
+            }
+            if (nota >= startFrom) {
+              return nota;
+            }
 
-          return `R$ ${startFrom + nota},00`;
-        }),
-      ),
+            return startFrom + nota;
+          })
+            .filter((option) => option > itemsTotalPrice)
+            .map(floatToBrl),
+        ),
+      ).slice(0, 5),
     ];
   }, [itemsTotalPrice]);
   const [selectedOption, setSelectedOption] = useState<string>(OPTIONS[0]);
