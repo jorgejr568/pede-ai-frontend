@@ -42,13 +42,13 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             className="bg-cover bg-center"
           />
         </div>
-        <div className="py-4">
-          <h2 className="text-lg font-bold">{product.name}</h2>
+        <div className="py-4 px-4 md:px-0 flex flex-col flex-1 items-center gap-1 w-full md:w-auto">
+          <h2 className="text-lg font-bold text-center">{product.name}</h2>
           <p className="text-slate-600">{moneyBrl(product.price)}</p>
 
-          <div className="mt-2">
+          <div className="mt-2 flex flex-col items-center w-full">
             <QuantityControl value={quantity} onChange={setQuantity} />
-            <Button className="mt-4" onClick={handleAddToCart}>
+            <Button className="mt-4 w-full md:w-auto" onClick={handleAddToCart}>
               Adicionar ao carrinho
             </Button>
           </div>

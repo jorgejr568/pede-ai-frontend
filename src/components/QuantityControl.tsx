@@ -13,7 +13,7 @@ export const QuantityControl = ({
   allowZero,
 }: QuantityControlProps) => {
   return (
-    <div className="flex items-center justify-center select-none">
+    <div className="flex items-center select-none">
       <Button
         variant="outline"
         size="icon"
