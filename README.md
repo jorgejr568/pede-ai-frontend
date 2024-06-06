@@ -1,40 +1,158 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Pede-AI Frontend
 
-## Getting Started
+## Table of Contents
+- [Introduction](#introduction)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-First, run the development server:
+## Introduction
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Pede-AI Frontend** is the client-side application for the Pede-AI project, built using Next.js. It connects to the Strapi backend to provide a seamless and dynamic user experience for ordering products. This frontend application offers a responsive and interactive interface for users to browse, select, and order products with ease.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+- Responsive design for mobile and desktop
+- Product listing and detailed view
+- Integration with Strapi backend API
+- SEO-friendly with Next.js server-side rendering
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Technology Stack
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+- **Frontend Framework:** Next.js (React)
+- **State Management:** React Context API / Redux (optional)
+- **Styling:** Tailwind CSS / shadcnui
+- **API Client:** Fetch API
+- **Hosting:** Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Prerequisites
 
-## Learn More
+Before you begin, ensure you have met the following requirements:
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js (>= 18.x.x)
+- npm or yarn (stable)
+- Access to the Pede-AI Strapi backend (API_KEY)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+1. **Clone the repository:**
 
-## Deploy on Vercel
+   ```sh
+   git clone https://github.com/jorgejr568/pede-ai-frontend.git
+   cd pede-ai-frontend
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **Install dependencies:**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+   ```sh
+   npm install
+   ```
+
+   or
+
+   ```sh
+   yarn install
+   ```
+
+3. **Start the development server:**
+
+   ```sh
+   npm run dev
+   ```
+
+   or
+
+   ```sh
+   yarn dev
+   ```
+
+   This will start the Next.js development server on `http://localhost:3000`.
+
+## Usage
+
+1. **Pages and Components:**
+
+   - Customize and add pages in the `pages` directory.
+   - Create reusable components in the `components` directory.
+
+2. **Fetching Data:**
+
+   Use Next.js data fetching methods (`getStaticProps`, `getServerSideProps`) to fetch data from the Strapi backend.
+
+   Example:
+
+   ```js
+   export async function getStaticProps() {
+     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+     const products = await res.json();
+
+     return {
+       props: { products },
+     };
+   }
+   ```
+
+3. **Styling:**
+
+   - Use Tailwind CSS for styling your components.
+
+## Deployment
+
+1. **Build the project:**
+
+   ```sh
+   npm run build
+   ```
+
+   or
+
+   ```sh
+   yarn build
+   ```
+
+2. **Start the server:**
+
+   ```sh
+   npm run start
+   ```
+
+   or
+
+   ```sh
+   yarn start
+   ```
+
+3. **Deploy to a hosting service:**
+
+   Follow the specific instructions for your chosen hosting service (e.g., Vercel) to deploy your Next.js application.
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes and commit them (`git commit -m 'Add some feature'`).
+4. Push to the branch (`git push origin feature-branch`).
+5. Open a pull request.
+
+Please make sure your code adheres to the project's coding standards and includes appropriate tests.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+## Contact
+
+For any inquiries or feedback, please contact [jorgejuniordev@gmail.com](mailto:jorgejuniordev@gmail.com).
+
+---
+
+Thank you for using Pede-AI Frontend! We hope it provides a great user experience for your customers.
